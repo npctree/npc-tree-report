@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NPC 나무모임 주간 보고서</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600&display=swap');
+
+  :root {
+    --green-deep: #2D5016;
+    --green-mid: #4A7C2F;
+    --green-light: #7DB356;
+    --green-pale: #EAF2E3;
+    --brown-warm: #8B6245;
+    --brown-light: #F5EDE3;
+    --cream: #FDFAF5;
+    --text-dark: #1E2A14;
+    --text-mid: #4A5240;
+    --text-light: #8A9480;
+    --border: #D4E4C4;
+    --white: #FFFFFF;
+    --shadow: 0 2px 12px rgba(45,80,22,0.10);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--cream);
+    color: var(--text-dark);
+    min-height: 100vh;
+  }
+
+  /* 헤더 */
+  .header {
+    background: var(--green-deep);
+    color: white;
+    padding: 20px 20px 16px;
+    text-align: center;
+    position: relative;
+  }
+  .header-subtitle {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: rgba(255,255,255,0.6);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .header-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 1px;
+  }
+  .header-verse {
+    font-size: 11px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 6px;
+    font-style: italic;
+  }
+
+  /* 탭 */
+  .tabs {
+    display: flex;
+    background: var(--green-deep);
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .tab {
+    flex: 1;
+    padding: 12px 4px;
+    text-align: center;
+    font-size: 12px;
+    color: rgba(255,255,255,0.55);
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+  .tab.active {
+    color: white;
+    border-bottom-color: var(--green-light);
+  }
+  .tab-icon { display: block; font-size: 18px; margin-bottom: 2px; }
+
+  /* 콘텐츠 */
+  .content { display: none; padding: 20px 16px 40px; max-width: 540px; margin: 0 auto; }
+  .content.active { display: block; }
+
+  /* 섹션 헤더 */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 24px 0 12px;
+  }
+  .section-header:first-child { margin-top: 4px; }
+  .section-dot {
+    width: 8px; height: 8px;
+    background: var(--green-mid);
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .section-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--green-mid);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  /* 폼 요소 */
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-mid);
+    margin-bottom: 6px;
+  }
+  .field label span.req { color: var(--green-mid); margin-left: 2px; }
+
+  .field select,
+  .field input[type="date"],
+  .field input[type="text"],
+  .field textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: white;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    color: var(--text-dark);
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+  }
+  .field select:focus,
+  .field input:focus,
+  .field textarea:focus {
+    border-color: var(--green-mid);
+    box-shadow: 0 0 0 3px rgba(74,124,47,0.10);
+  }
+  .field textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+
+  /* 출석 카운터 */
+  .count-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    width: fit-content;
+  }
+  .count-btn {
+    width: 48px; height: 48px;
+    background: var(--green-pale);
+    border: none;
+    font-size: 22px;
+    color: var(--green-mid);
+    cursor: pointer;
+    font-weight: 300;
+    transition: background 0.15s;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .count-btn:active { background: var(--border); }
+  .count-val {
+    width: 64px;
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--green-deep);
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    padding: 0 8px;
+    line-height: 48px;
+  }
+  .count-unit {
+    font-size: 13px;
+    color: var(--text-light);
+    padding: 0 12px 0 6px;
+  }
+
+  /* 분위기 선택 */
+  .mood-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .mood-btn {
+    flex: 1;
+    min-width: 70px;
+    padding: 10px 8px;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    background: white;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .mood-btn .mood-emoji { font-size: 22px; display: block; margin-bottom: 4px; }
+  .mood-btn .mood-label { font-size: 11px; color: var(--text-mid); font-weight: 500; }
+  .mood-btn.selected {
+    border-color: var(--green-mid);
+    background: var(--green-pale);
+  }
+  .mood-btn.selected .mood-label { color: var(--green-deep); }
+
+  /* 제출 버튼 */
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--green-deep);
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 28px;
+    letter-spacing: 0.5px;
+    transition: background 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .submit-btn:hover { background: var(--green-mid); }
+  .submit-btn:disabled { background: var(--text-light); cursor: not-allowed; }
+
+  /* 성공 메시지 */
+  .success-msg {
+    display: none;
+    background: var(--green-pale);
+    border: 1.5px solid var(--green-light);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    margin-top: 20px;
+  }
+  .success-msg.show { display: block; }
+  .success-msg .check { font-size: 36px; margin-bottom: 8px; }
+  .success-msg p { font-size: 14px; color: var(--green-deep); font-weight: 500; line-height: 1.6; }
+
+  /* 대시보드 */
+  .dashboard-header {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .load-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--green-mid);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-bottom: 12px;
+  }
+  .load-btn:hover { background: var(--green-deep); }
+
+  .filter-row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .filter-btn {
+    padding: 6px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    background: white;
+    font-size: 12px;
+    color: var(--text-mid);
+    cursor: pointer;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 500;
+    transition: all 0.15s;
+  }
+  .filter-btn.active {
+    background: var(--green-deep);
+    color: white;
+    border-color: var(--green-deep);
+  }
+
+  .report-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .report-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+  }
+  .report-tree-name {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--green-deep);
+  }
+  .report-forest-tag {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    background: var(--green-pale);
+    color: var(--green-mid);
+    font-weight: 500;
+  }
+  .report-date { font-size: 12px; color: var(--text-light); margin-bottom: 10px; }
+  .report-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 13px;
+  }
+  .report-row-label {
+    color: var(--text-light);
+    min-width: 72px;
+    flex-shrink: 0;
+  }
+  .report-row-value { color: var(--text-dark); line-height: 1.5; }
+
+  .mood-tag {
+    display: inline-block;
+    font-size: 12px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 500;
+  }
+  .mood-great { background: #E8F5E9; color: #2E7D32; }
+  .mood-ok { background: #FFF8E1; color: #F57F17; }
+  .mood-hard { background: #FFEBEE; color: #C62828; }
+
+  .flag-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    margin-right: 4px;
+    margin-top: 4px;
+    font-weight: 500;
+  }
+  .flag-prayer { background: #E3F2FD; color: #1565C0; }
+  .flag-visit { background: #FCE4EC; color: #AD1457; }
+
+  .no-reports {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-light);
+    font-size: 14px;
+  }
+  .no-reports span { font-size: 32px; display: block; margin-bottom: 8px; }
+
+  /* AI 분석 탭 */
+  .ai-section {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .ai-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green-deep);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .ai-desc { font-size: 12px; color: var(--text-light); margin-bottom: 16px; line-height: 1.5; }
+  .ai-result {
+    background: var(--green-pale);
+    border-radius: 10px;
+    padding: 16px;
+    font-size: 13px;
+    color: var(--text-dark);
+    line-height: 1.8;
+    white-space: pre-wrap;
+    min-height: 80px;
+  }
+  .ai-result.loading { color: var(--text-light); font-style: italic; }
+
+  /* 안내 탭 */
+  .info-card {
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 18px;
+    margin-bottom: 12px;
+  }
+  .info-card h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green-deep);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .info-card p, .info-card li {
+    font-size: 13px;
+    color: var(--text-mid);
+    line-height: 1.7;
+  }
+  .info-card ul { padding-left: 16px; }
+  .forest-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+  .forest-table th, .forest-table td {
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .forest-table th { color: var(--text-light); font-weight: 500; }
+  .forest-table td { color: var(--text-dark); }
+
+  /* 로딩 */
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* 반응형 */
+  @media (max-width: 360px) {
+    .mood-btn .mood-label { font-size: 10px; }
+    .tab { font-size: 11px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-subtitle">Northfield Presbyterian Church</div>
+  <div class="header-title">🌳 나무모임 주간 보고서</div>
+  <div class="header-verse">이사야 61:3 — 의의 나무, 여호와께서 심으신 것</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('report')">
+    <span class="tab-icon">📝</span>보고서
+  </div>
+  <div class="tab" onclick="switchTab('dashboard')">
+    <span class="tab-icon">📊</span>대시보드
+  </div>
+  <div class="tab" onclick="switchTab('analysis')">
+    <span class="tab-icon">🌿</span>목양분석
+  </div>
+  <div class="tab" onclick="switchTab('info')">
+    <span class="tab-icon">ℹ️</span>안내
+  </div>
+</div>
+
+<!-- 보고서 탭 -->
+<div id="tab-report" class="content active">
+
+  <div class="section-header" style="margin-top:8px;">
+    <div class="section-dot"></div>
+    <div class="section-label">기본 정보</div>
+  </div>
+
+  <div class="field">
+    <label>나무 선택 <span class="req">*</span></label>
+    <select id="f-tree">
+      <option value="">— 나무를 선택해 주세요 —</option>
+      <optgroup label="🌲 믿음의 숲 (숲지기: 오예원)">
+        <option value="1 포도나무|믿음의 숲">1 포도나무 (고준)</option>
+        <option value="2 사랑이 꽃피는 나무|믿음의 숲">2 사랑이 꽃피는 나무 (김현정)</option>
+        <option value="3 백향나무|믿음의 숲">3 백향나무 (김현진)</option>
+        <option value="4 새힘나무|믿음의 숲">4 새힘나무 (백정미)</option>
+        <option value="5 주망나무|믿음의 숲">5 주망나무 (송현진)</option>
+        <option value="6 감사나무|믿음의 숲">6 감사나무 (오예원)</option>
+      </optgroup>
+      <optgroup label="🌲 소망의 숲 (숲지기: 김교현)">
+        <option value="7 올리브 나무|소망의 숲">7 올리브 나무 (조지현)</option>
+        <option value="8 살름나무|소망의 숲">8 살름나무 (이미리)</option>
+        <option value="9 접붙임 나무|소망의 숲">9 접붙임 나무 (지준석)</option>
+        <option value="10 빛나무|소망의 숲">10 빛나무 (김교현)</option>
+        <option value="11 사과나무|소망의 숲">11 사과나무 (김원배)</option>
+      </optgroup>
+      <optgroup label="🌲 사랑의 숲 (숲지기: 심은오)">
+        <option value="12 누리는 나무|사랑의 숲">12 누리는 나무 (김은희)</option>
+        <option value="13 주의나무|사랑의 숲">13 주의나무 (박신애)</option>
+        <option value="14 아낌없이 주는 나무|사랑의 숲">14 아낌없이 주는 나무 (심은오)</option>
+        <option value="15 생명나무|사랑의 숲">15 생명나무 (안성희)</option>
+        <option value="16 종려나무|사랑의 숲">16 종려나무 (김지은)</option>
+      </optgroup>
+      <optgroup label="🌲 진리의 숲 (숲지기: 함지애)">
+        <option value="17 행복나무|진리의 숲">17 행복나무 (김희영)</option>
+        <option value="18 소나무|진리의 숲">18 소나무 (김미란, 이광선)</option>
+        <option value="19 죽복나무|진리의 숲">19 죽복나무 (손인영)</option>
+        <option value="20 로뎀나무|진리의 숲">20 로뎀나무 (함지애)</option>
+        <option value="21 롤댄나무|진리의 숲">21 롤댄나무 (이성덕)</option>
+        <option value="22 아름드리 나무|진리의 숲">22 아름드리 나무 (이소현)</option>
+        <option value="23 소망나무|진리의 숲">23 소망나무 (홍경숙)</option>
+        <option value="24 나무|진리의 숲">24 나무 (새가족)</option>
+      </optgroup>
+    </select>
+  </div>
+
+  <div class="field">
+    <label>보고 날짜 <span class="req">*</span></label>
+    <input type="date" id="f-date">
+  </div>
+
+  <div class="section-header">
+    <div class="section-dot"></div>
+    <div class="section-label">모임 현황</div>
+  </div>
+
+  <div class="field">
+    <label>출석 인원</label>
+    <div style="display:flex; align-items:center; gap:12px;">
+      <div class="count-row">
+        <button class="count-btn" onclick="adjust('attend',-1)">−</button>
+        <div class="count-val" id="attend-val">0</div>
+        <button class="count-btn" onclick="adjust('attend',1)">+</button>
+      </div>
+      <span class="count-unit">명</span>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>이번 주 모임 분위기</label>
+    <div class="mood-row">
+      <button class="mood-btn" onclick="selectMood('great', this)">
+        <span class="mood-emoji">😊</span>
+        <span class="mood-label">매우 좋음</span>
+      </button>
+      <button class="mood-btn" onclick="selectMood('ok', this)">
+        <span class="mood-emoji">🙂</span>
+        <span class="mood-label">보통</span>
+      </button>
+      <button class="mood-btn" onclick="selectMood('hard', this)">
+        <span class="mood-emoji">😔</span>
+        <span class="mood-label">어려움</span>
+      </button>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>결석자 (이름 또는 사유)</label>
+    <input type="text" id="f-absent" placeholder="예: 김영희(출장), 이철수(아픔)">
+  </div>
+
+  <div class="section-header">
+    <div class="section-dot"></div>
+    <div class="section-label">구성원 상황</div>
+  </div>
+
+  <div class="field">
+    <label>기도 요청 / 어려운 분</label>
+    <textarea id="f-prayer" placeholder="아픈 분, 가정 문제, 직장 문제 등..."></textarea>
+  </div>
+
+  <div class="field">
+    <label>심방이 필요한 분</label>
+    <textarea id="f-visit" placeholder="담임목사님 또는 권사님의 심방이 필요한 분이 있으면 적어주세요" style="min-height:60px;"></textarea>
+  </div>
+
+  <div class="field">
+    <label>전도 대상자 또는 새로 연락한 분</label>
+    <input type="text" id="f-outreach" placeholder="이름 또는 상황 간략히">
+  </div>
+
+  <div class="section-header">
+    <div class="section-dot"></div>
+    <div class="section-label">목사님께</div>
+  </div>
+
+  <div class="field">
+    <label>기도 제목 및 감사 제목</label>
+    <textarea id="f-thanks" placeholder="이번 주 나무모임의 기도 제목이나 감사한 일을 나눠주세요..."></textarea>
+  </div>
+
+  <div class="field">
+    <label>목사님께 전하는 말</label>
+    <textarea id="f-msg" placeholder="목사님께 전하고 싶은 내용이 있으면 적어주세요..."></textarea>
+  </div>
+
+  <button class="submit-btn" id="submit-btn" onclick="submitReport()">
+    <span id="submit-text">보고서 제출하기 🌳</span>
+  </button>
+
+  <div class="success-msg" id="success-msg">
+    <div class="check">🌳</div>
+    <p>보고서가 제출되었습니다.<br>수고하셨습니다, 나무지기님!</p>
+  </div>
+</div>
+
+<!-- 대시보드 탭 -->
+<div id="tab-dashboard" class="content">
+  <div class="dashboard-header">
+    <button class="load-btn" onclick="loadReports()">📥 보고서 불러오기</button>
+    <div class="filter-row" id="filter-row">
+      <button class="filter-btn active" onclick="setFilter('all', this)">전체</button>
+      <button class="filter-btn" onclick="setFilter('믿음의 숲', this)">믿음의 숲</button>
+      <button class="filter-btn" onclick="setFilter('소망의 숲', this)">소망의 숲</button>
+      <button class="filter-btn" onclick="setFilter('사랑의 숲', this)">사랑의 숲</button>
+      <button class="filter-btn" onclick="setFilter('진리의 숲', this)">진리의 숲</button>
+      <button class="filter-btn" onclick="setFilter('심방', this)">🏥 심방필요</button>
+      <button class="filter-btn" onclick="setFilter('어려움', this)">⚠️ 어려움</button>
+    </div>
+  </div>
+  <div id="reports-container">
+    <div class="no-reports">
+      <span>🌱</span>
+      보고서를 불러오려면<br>위 버튼을 눌러주세요
+    </div>
+  </div>
+</div>
+
+<!-- 목양분석 탭 -->
+<div id="tab-analysis" class="content">
+  <div class="ai-section">
+    <div class="ai-title">🌿 AI 목양 분석</div>
+    <div class="ai-desc">제출된 보고서를 바탕으로 이번 주 나무모임 전체 현황과 목양 제안을 드립니다.</div>
+    <button class="load-btn" onclick="runAnalysis()">분석 시작하기</button>
+    <div class="ai-result" id="ai-result">분석 버튼을 누르면 결과가 여기에 표시됩니다.</div>
+  </div>
+</div>
+
+<!-- 안내 탭 -->
+<div id="tab-info" class="content">
+  <div class="info-card">
+    <h3>🌲 숲 구성 안내</h3>
+    <table class="forest-table">
+      <thead>
+        <tr><th>숲</th><th>숲지기</th><th>나무</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>믿음의 숲</td><td>오예원</td><td>2~6, 포도나무</td></tr>
+        <tr><td>소망의 숲</td><td>김교현</td><td>7~11</td></tr>
+        <tr><td>사랑의 숲</td><td>심은오</td><td>12~16</td></tr>
+        <tr><td>진리의 숲</td><td>함지애</td><td>17~25</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="info-card">
+    <h3>📋 보고서 제출 방법</h3>
+    <ul>
+      <li>매주 나무모임 후 보고서 탭에서 작성해 주세요</li>
+      <li>기도 요청과 심방 필요 항목은 꼭 적어주세요</li>
+      <li>목사님께 전하고 싶은 내용은 자유롭게 적어주세요</li>
+    </ul>
+  </div>
+
+  <div class="info-card">
+    <h3>ℹ️ 나무모임 비전</h3>
+    <p>나무모임은 단순한 성경공부나 삶 나눔이 아닙니다.<br><br>
+    <strong>예수님이 식탁의 주인이 되시는 자리</strong> — 예수님과 함께하는 식탁의 모임입니다. 🌳</p>
+  </div>
+
+  <div class="info-card">
+    <h3>🔧 구글 시트 연결</h3>
+    <p>보고서는 구글 시트에 자동 저장됩니다.<br>
+    계정: npctree.report@gmail.com<br><br>
+    시트 ID 또는 구글 폼 ID를 아래 코드에서 설정하세요.</p>
+  </div>
+</div>
+
+<script>
+// ====================================================
+// 설정 — 구글 시트 ID와 API Key를 여기에 입력하세요
+// ====================================================
+const SHEET_ID = '1hu1xjYnybI1-GvzJGxN8DGri_O4xpPCuzsffVNe1cOM';
+const GOOGLE_FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLScWeq_3-0c5v3y_lDk2qhwe4-fjttnEfhRASL0owZSX-grW4g/formResponse';
+
+// 구글 폼 entry ID (설정 필요)
+const FORM_ENTRIES = {
+  tree:     'entry.XXXXXXX',  // 나무 선택
+  date:     'entry.XXXXXXX',  // 날짜
+  attend:   'entry.XXXXXXX',  // 출석 인원
+  mood:     'entry.XXXXXXX',  // 분위기
+  absent:   'entry.XXXXXXX',  // 결석자
+  prayer:   'entry.XXXXXXX',  // 기도요청
+  visit:    'entry.XXXXXXX',  // 심방필요
+  outreach: 'entry.XXXXXXX',  // 전도대상
+  thanks:   'entry.XXXXXXX',  // 감사제목
+  msg:      'entry.XXXXXXX',  // 목사님께
+};
+// ====================================================
+
+let attendCount = 0;
+let selectedMood = '';
+let allReports = [];
+let currentFilter = 'all';
+
+// 날짜 기본값
+document.getElementById('f-date').valueAsDate = new Date();
+
+// 탭 전환
+function switchTab(tab) {
+  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// 출석 카운터
+function adjust(field, delta) {
+  if (field === 'attend') {
+    attendCount = Math.max(0, attendCount + delta);
+    document.getElementById('attend-val').textContent = attendCount;
+  }
+}
+
+// 분위기 선택
+function selectMood(mood, btn) {
+  selectedMood = mood;
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+}
+
+// 보고서 제출
+async function submitReport() {
+  const tree = document.getElementById('f-tree').value;
+  const date = document.getElementById('f-date').value;
+
+  if (!tree) { alert('나무를 선택해 주세요.'); return; }
+  if (!date) { alert('날짜를 선택해 주세요.'); return; }
+  if (!selectedMood) { alert('모임 분위기를 선택해 주세요.'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  document.getElementById('submit-text').innerHTML = '<span class="spinner"></span> 제출 중...';
+
+  const [treeName, forest] = tree.split('|');
+
+  // 로컬 저장 (구글 폼 entry ID가 설정되기 전까지 임시 저장)
+  const report = {
+    id: Date.now(),
+    tree: treeName,
+    forest: forest,
+    date: date,
+    attend: attendCount,
+    mood: selectedMood,
+    absent: document.getElementById('f-absent').value,
+    prayer: document.getElementById('f-prayer').value,
+    visit: document.getElementById('f-visit').value,
+    outreach: document.getElementById('f-outreach').value,
+    thanks: document.getElementById('f-thanks').value,
+    msg: document.getElementById('f-msg').value,
+    submittedAt: new Date().toISOString()
+  };
+
+  // localStorage에 저장
+  const saved = JSON.parse(localStorage.getItem('npc_reports') || '[]');
+  saved.push(report);
+  localStorage.setItem('npc_reports', JSON.stringify(saved));
+
+  // 구글 폼 제출 시도 (entry ID 설정 시 활성화)
+  // await submitToGoogleForm(report);
+
+  await new Promise(r => setTimeout(r, 800));
+
+  btn.disabled = false;
+  document.getElementById('submit-text').textContent = '보고서 제출하기 🌳';
+  document.getElementById('success-msg').classList.add('show');
+  resetForm();
+
+  setTimeout(() => {
+    document.getElementById('success-msg').classList.remove('show');
+  }, 4000);
+}
+
+function resetForm() {
+  document.getElementById('f-tree').value = '';
+  document.getElementById('f-date').valueAsDate = new Date();
+  document.getElementById('f-absent').value = '';
+  document.getElementById('f-prayer').value = '';
+  document.getElementById('f-visit').value = '';
+  document.getElementById('f-outreach').value = '';
+  document.getElementById('f-thanks').value = '';
+  document.getElementById('f-msg').value = '';
+  attendCount = 0;
+  document.getElementById('attend-val').textContent = '0';
+  selectedMood = '';
+  document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+}
+
+// 보고서 불러오기
+function loadReports() {
+  const saved = JSON.parse(localStorage.getItem('npc_reports') || '[]');
+  allReports = saved.sort((a, b) => new Date(b.submittedAt) - new Date(a.submittedAt));
+  renderReports();
+}
+
+function setFilter(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderReports();
+}
+
+function renderReports() {
+  const container = document.getElementById('reports-container');
+
+  let filtered = allReports;
+  if (currentFilter === '심방') {
+    filtered = allReports.filter(r => r.visit && r.visit.trim());
+  } else if (currentFilter === '어려움') {
+    filtered = allReports.filter(r => r.mood === 'hard');
+  } else if (currentFilter !== 'all') {
+    filtered = allReports.filter(r => r.forest === currentFilter);
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="no-reports"><span>🌱</span>아직 보고서가 없습니다</div>`;
+    return;
+  }
+
+  const moodLabel = { great: '😊 매우 좋음', ok: '🙂 보통', hard: '😔 어려움' };
+  const moodClass = { great: 'mood-great', ok: 'mood-ok', hard: 'mood-hard' };
+
+  container.innerHTML = filtered.map(r => `
+    <div class="report-card">
+      <div class="report-card-header">
+        <div class="report-tree-name">🌳 ${r.tree}</div>
+        <div class="report-forest-tag">${r.forest}</div>
+      </div>
+      <div class="report-date">📅 ${r.date}</div>
+      <div class="report-row">
+        <div class="report-row-label">출석</div>
+        <div class="report-row-value"><strong>${r.attend}명</strong></div>
+      </div>
+      <div class="report-row">
+        <div class="report-row-label">분위기</div>
+        <div class="report-row-value">
+          <span class="mood-tag ${moodClass[r.mood]}">${moodLabel[r.mood]}</span>
+        </div>
+      </div>
+      ${r.absent ? `<div class="report-row"><div class="report-row-label">결석자</div><div class="report-row-value">${r.absent}</div></div>` : ''}
+      ${r.prayer ? `<div class="report-row"><div class="report-row-label">기도요청</div><div class="report-row-value">${r.prayer}</div></div>` : ''}
+      ${r.visit ? `<div class="report-row"><div class="report-row-label">심방필요</div><div class="report-row-value" style="color:#AD1457;">${r.visit}</div></div>` : ''}
+      ${r.outreach ? `<div class="report-row"><div class="report-row-label">전도대상</div><div class="report-row-value">${r.outreach}</div></div>` : ''}
+      ${r.msg ? `<div class="report-row"><div class="report-row-label">목사님께</div><div class="report-row-value">${r.msg}</div></div>` : ''}
+      <div style="margin-top:8px;">
+        ${r.prayer ? '<span class="flag-badge flag-prayer">🙏 기도요청</span>' : ''}
+        ${r.visit ? '<span class="flag-badge flag-visit">🏥 심방필요</span>' : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// AI 목양 분석
+async function runAnalysis() {
+  const reports = JSON.parse(localStorage.getItem('npc_reports') || '[]');
+  if (reports.length === 0) {
+    document.getElementById('ai-result').textContent = '먼저 보고서를 제출해 주세요.';
+    return;
+  }
+
+  const result = document.getElementById('ai-result');
+  result.className = 'ai-result loading';
+  result.textContent = '분석 중입니다...';
+
+  const summary = reports.slice(0, 20).map(r =>
+    `[${r.tree}/${r.forest}] ${r.date} 출석:${r.attend}명 분위기:${r.mood} 기도:${r.prayer||'없음'} 심방:${r.visit||'없음'} 전도:${r.outreach||'없음'} 목사님께:${r.msg||'없음'}`
+  ).join('\n');
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        system: '당신은 한국 교회의 담임목사를 돕는 목양 AI입니다. 나무모임(소그룹) 주간 보고서를 분석하여 목사님께 간결하고 따뜻한 목양 안내를 드립니다. 심방이 필요한 분, 기도가 필요한 분, 전체적인 분위기를 요약해 주세요.',
+        messages: [{ role: 'user', content: `다음은 이번 주 나무모임 보고서입니다:\n\n${summary}\n\n목양 분석을 해주세요.` }]
+      })
+    });
+    const data = await response.json();
+    result.className = 'ai-result';
+    result.textContent = data.content?.[0]?.text || '분석 결과를 가져오지 못했습니다.';
+  } catch (e) {
+    result.className = 'ai-result';
+    result.textContent = '분석 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+  }
+}
+</script>
+</body>
+</html>
