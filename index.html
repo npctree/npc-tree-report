@@ -758,16 +758,24 @@ async function submitReport() {
     submittedAt: new Date().toISOString()
   };
 
-  // localStorage에 저장
+// Google Apps Script로 전송
+  try {
+    await fetch('https://script.google.com/macros/s/AKfycbz89fF9ztb47ACaI_feUdRoBQEsX6RsuFsx_L8slsFOh-DFuJKGX5iUj8SerxNw_Ql3/exec', {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(report)
+    });
+  } catch(e) {
+    console.error('전송 오류:', e);
+  }
+
+  // localStorage에도 백업 저장
   const saved = JSON.parse(localStorage.getItem('npc_reports') || '[]');
   saved.push(report);
   localStorage.setItem('npc_reports', JSON.stringify(saved));
 
-  // 구글 폼 제출 시도 (entry ID 설정 시 활성화)
-  // await submitToGoogleForm(report);
-
   await new Promise(r => setTimeout(r, 800));
-
   btn.disabled = false;
   document.getElementById('submit-text').textContent = '보고서 제출하기 🌳';
   document.getElementById('success-msg').classList.add('show');
