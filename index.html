@@ -8,19 +8,29 @@
   @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;600&display=swap');
 
   :root {
-    --green-deep: #2D5016;
-    --green-mid: #4A7C2F;
-    --green-light: #7DB356;
-    --green-pale: #EAF2E3;
-    --brown-warm: #8B6245;
-    --brown-light: #F5EDE3;
-    --cream: #FDFAF5;
-    --text-dark: #1E2A14;
-    --text-mid: #4A5240;
-    --text-light: #8A9480;
-    --border: #D4E4C4;
+ /* NPC 로고 기반 컬러 팔레트 */
+    --navy: #1C3959;
+    --blue: #3E8BCB;
+    --blue-pale: #E8F1FA;
+    --teal: #50A998;
+    --teal-pale: #E7F5F2;
+    --orange: #D59946;
+    --orange-pale: #FBF1E2;
+    --logo-cream: #CAC8B7;
+
+    --green-deep: var(--navy);
+    --green-mid: var(--blue);
+    --green-light: var(--teal);
+    --green-pale: var(--blue-pale);
+    --brown-warm: var(--orange);
+    --brown-light: var(--orange-pale);
+    --cream: #FBFAF7;
+    --text-dark: #1C2530;
+    --text-mid: #5B6B7A;
+    --text-light: #9CA8AF;
+    --border: #E3DFD2;
     --white: #FFFFFF;
-    --shadow: 0 2px 12px rgba(45,80,22,0.10);
+    --shadow: 0 2px 12px rgba(28,57,89,0.10);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -333,7 +343,9 @@
     border-radius: 20px;
     font-weight: 500;
   }
-  .mood-great { background: #E8F5E9; color: #2E7D32; }
+  .mood-great { background: var(--teal-pale); color: #346D62; }
+  .mood-ok { background: var(--orange-pale); color: #8A632D; }
+  .mood-hard { background: #FBEAEA; color: #B5453F; }
   .mood-ok { background: #FFF8E1; color: #F57F17; }
   .mood-hard { background: #FFEBEE; color: #C62828; }
 
@@ -348,7 +360,8 @@
     margin-top: 4px;
     font-weight: 500;
   }
-  .flag-prayer { background: #E3F2FD; color: #1565C0; }
+  .flag-prayer { background: var(--blue-pale); color: #285A83; }
+  .flag-visit { background: var(--orange-pale); color: #8A632D; }
   .flag-visit { background: #FCE4EC; color: #AD1457; }
 
   .no-reports {
@@ -443,7 +456,12 @@
 </head>
 <body>
 
-<div class="header">
+.header-logo {
+    width: 52px;
+    height: auto;
+    margin-bottom: 8px;
+    border-radius: 8px;
+  }
   <div class="header-subtitle">Northfield Presbyterian Church</div>
   <div class="header-title">🌳 나무모임 주간 보고서</div>
   <div class="header-verse">이사야 61:3 — 의의 나무, 여호와께서 심으신 것</div>
