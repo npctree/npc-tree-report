@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>추모 앱 관리자 — NPC</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: #F5F4F0; color: #2C2C2A; min-height: 100vh; padding: 1.5rem;
+  }
+  .wrap { max-width: 520px; margin: 0 auto; }
+  .page-title { font-size: 18px; font-weight: 600; color: #2C2C2A; margin-bottom: 4px; }
+  .page-sub { font-size: 13px; color: #888780; margin-bottom: 1.5rem; }
+
+  .card {
+    background: #fff; border: 1px solid #DDD9CF;
+    border-radius: 14px; padding: 1.25rem 1.5rem;
+    margin-bottom: 1rem;
+  }
+  .card-title {
+    font-size: 13px; font-weight: 600; color: #888780;
+    letter-spacing: 0.05em; margin-bottom: 1rem;
+    padding-bottom: 0.75rem; border-bottom: 1px solid #EDEBE4;
+  }
+  .field { margin-bottom: 12px; }
+  .field label { display: block; font-size: 12px; color: #5F5E5A; margin-bottom: 5px; font-weight: 500; }
+  .field input, .field textarea, .field select {
+    display: block; width: 100%;
+    border: 1px solid #DDD9CF; border-radius: 10px;
+    padding: 10px 13px; font-size: 14px;
+    font-family: inherit; color: #2C2C2A;
+    background: #FAFAF8;
+    -webkit-appearance: none;
+  }
+  .field input:focus, .field textarea:focus {
+    outline: none; border-color: #888780; background: #fff;
+  }
+  .field textarea { height: 90px; resize: none; }
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .photo-upload {
+    border: 1px dashed #C4C2BA; border-radius: 10px;
+    padding: 1.5rem; text-align: center; cursor: pointer;
+    background: #FAFAF8; transition: background 0.15s;
+  }
+  .photo-upload:hover { background: #F0EEE7; }
+  .photo-upload input { display: none; }
+  .photo-preview {
+    width: 80px; height: 80px; border-radius: 50%;
+    object-fit: cover; margin: 0 auto 8px; display: none;
+    border: 2px solid #B4B2A9;
+  }
+  .photo-upload-icon { font-size: 28px; color: #C4C2BA; margin-bottom: 6px; }
+  .photo-upload-text { font-size: 13px; color: #888780; }
+
+  .sched-item {
+    background: #FAFAF8; border: 1px solid #EDEBE4;
+    border-radius: 10px; padding: 12px; margin-bottom: 8px;
+    position: relative;
+  }
+  .sched-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .sched-row:last-child { margin-bottom: 0; }
+  .sched-item input {
+    width: 100%; border: 1px solid #DDD9CF; border-radius: 8px;
+    padding: 8px 10px; font-size: 13px; font-family: inherit;
+    color: #2C2C2A; background: #fff;
+  }
+  .sched-item input:focus { outline: none; border-color: #888780; }
+  .del-btn {
+    position: absolute; top: 8px; right: 10px;
+    background: none; border: none; font-size: 16px;
+    color: #B4B2A9; cursor: pointer; padding: 2px 6px;
+  }
+  .del-btn:hover { color: #888780; }
+  .add-sched-btn {
+    width: 100%; padding: 10px;
+    border: 1px dashed #C4C2BA; border-radius: 10px;
+    background: transparent; font-size: 13px; color: #888780;
+    cursor: pointer; margin-top: 4px;
+  }
+  .add-sched-btn:hover { background: #FAFAF8; }
+
+  .save-btn {
+    width: 100%; padding: 14px;
+    background: #2C2C2A; color: #F1EFE8;
+    border: none; border-radius: 12px;
+    font-size: 15px; font-weight: 600;
+    cursor: pointer; margin-top: 0.5rem;
+  }
+  .save-btn:active { opacity: 0.85; }
+  .save-btn.loading { opacity: 0.6; pointer-events: none; }
+
+  .toast {
+    position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+    background: #2C2C2A; color: #F1EFE8;
+    padding: 10px 20px; border-radius: 20px;
+    font-size: 13px; white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 100;
+  }
+  .toast.show { opacity: 1; }
+
+  .preview-link {
+    display: block; text-align: center; margin-top: 0.75rem;
+    font-size: 13px; color: #888780; text-decoration: none;
+  }
+  .preview-link:hover { color: #2C2C2A; }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(241,239,232,0.3);
+    border-top-color: #F1EFE8; border-radius: 50%;
+    animation: spin 0.7s linear infinite; display: inline-block;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="page-title">✝ 추모 페이지 관리</div>
+  <div class="page-sub">노스필드장로교회 — 관리자 전용</div>
+
+  <!-- 고인 기본 정보 -->
+  <div class="card">
+    <div class="card-title">고인 기본 정보</div>
+
+    <div class="field">
+      <label>고인 사진</label>
+      <div class="photo-upload" onclick="document.getElementById('photo-file').click()">
+        <img class="photo-preview" id="photo-preview" src="" alt="미리보기">
+        <div id="upload-icon">
+          <div class="photo-upload-icon">📷</div>
+          <div class="photo-upload-text">사진을 탭해서 올려주세요</div>
+        </div>
+        <input type="file" id="photo-file" accept="image/*" onchange="previewPhoto(event)">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>성함 (예: 이요한 집사님)</label>
+      <input type="text" id="f-name" placeholder="홍길동 집사님" maxlength="30">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>출생일</label>
+        <input type="text" id="f-born" placeholder="1942. 3. 15">
+      </div>
+      <div class="field">
+        <label>소천일</label>
+        <input type="text" id="f-died" placeholder="2025. 6. 20">
+      </div>
+    </div>
+    <div class="field">
+      <label>성경 구절 내용</label>
+      <input type="text" id="f-verse" placeholder="주는 나의 목자시니 내가 부족함이 없으리로다">
+    </div>
+    <div class="field">
+      <label>성경 구절 출처 (예: 시편 23:1)</label>
+      <input type="text" id="f-verse-ref" placeholder="시편 23:1">
+    </div>
+    <div class="field">
+      <label>약력 소개</label>
+      <textarea id="f-bio" placeholder="노스필드장로교회 창립 멤버이자 30년간 집사로 섬기셨습니다..."></textarea>
+    </div>
+  </div>
+
+  <!-- 추가 약력 -->
+  <div class="card">
+    <div class="card-title">추가 약력</div>
+    <div class="field">
+      <label>학력</label>
+      <input type="text" id="f-edu" placeholder="연세대학교 경영학과 졸업 (1965)">
+    </div>
+    <div class="field">
+      <label>직업</label>
+      <input type="text" id="f-job" placeholder="한미은행 부지점장 역임 (은퇴)">
+    </div>
+    <div class="field">
+      <label>가족</label>
+      <input type="text" id="f-family" placeholder="배우자 김마리아 권사, 자녀 3남매">
+    </div>
+    <div class="field">
+      <label>신앙</label>
+      <input type="text" id="f-faith" placeholder="노스필드장로교회 집사 (1995–2025)">
+    </div>
+  </div>
+
+  <!-- 장례 일정 -->
+  <div class="card">
+    <div class="card-title">장례 일정</div>
+    <div id="sched-list"></div>
+    <button class="add-sched-btn" onclick="addSched()">+ 일정 추가</button>
+  </div>
+
+  <!-- 저장 -->
+  <button class="save-btn" id="save-btn" onclick="saveAll()">
+    <span id="save-text">추모 페이지 저장하기</span>
+  </button>
+  <a href="index.html" class="preview-link" target="_blank">→ 추모 페이지 미리보기</a>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxnejAsk365r5Ywo-VDSgWoB7oEiMm5z6SkpYFyJRPcFaHbY-X7riXuauWM-vsO0sYS/exec';
+
+// ── 사진 미리보기 ─────────────────────────────────────
+let photoBase64 = '';
+function previewPhoto(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    photoBase64 = ev.target.result;
+    const preview = document.getElementById('photo-preview');
+    preview.src = photoBase64;
+    preview.style.display = 'block';
+    document.getElementById('upload-icon').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── 일정 추가/삭제 ────────────────────────────────────
+let schedCount = 0;
+function addSched(data) {
+  schedCount++;
+  const id = 'sched-' + schedCount;
+  const div = document.createElement('div');
+  div.className = 'sched-item';
+  div.id = id;
+  div.innerHTML = `
+    <button class="del-btn" onclick="document.getElementById('${id}').remove()">✕</button>
+    <div class="sched-row">
+      <input type="text" placeholder="날짜 (예: 6월 22일)" class="s-date" value="${data ? data.date : ''}">
+      <input type="text" placeholder="시간 (예: 오전 10:00)" class="s-time" value="${data ? data.time : ''}">
+    </div>
+    <div class="sched-row">
+      <input type="text" placeholder="예배명 (예: 장례 예배)" class="s-title" value="${data ? data.title : ''}">
+      <input type="text" placeholder="장소" class="s-loc" value="${data ? data.loc : ''}">
+    </div>`;
+  document.getElementById('sched-list').appendChild(div);
+}
+
+// 기본 일정 4개
+[
+  { date: '6월 21일', time: '오전 11:00', title: '입관 예배', loc: 'Wheeling Memorial Chapel' },
+  { date: '6월 22일', time: '오전 10:00', title: '장례 예배', loc: '노스필드장로교회 본당' },
+  { date: '6월 22일', time: '오후 2:00',  title: '하관 예배 및 안장', loc: 'Memory Garden Cemetery' },
+  { date: '6월 22일', time: '오후 4:00',  title: '식사 교제', loc: '교회 친교실' },
+].forEach(addSched);
+
+// ── 저장 ─────────────────────────────────────────────
+async function saveAll() {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { showToast('성함을 입력해 주세요'); return; }
+
+  const scheds = [];
+  document.querySelectorAll('.sched-item').forEach(item => {
+    scheds.push({
+      date:  item.querySelector('.s-date').value,
+      time:  item.querySelector('.s-time').value,
+      title: item.querySelector('.s-title').value,
+      loc:   item.querySelector('.s-loc').value,
+    });
+  });
+
+  const payload = {
+    action:    'saveProfile',
+    name:      name,
+    born:      document.getElementById('f-born').value.trim(),
+    died:      document.getElementById('f-died').value.trim(),
+    verse:     document.getElementById('f-verse').value.trim(),
+    verseRef:  document.getElementById('f-verse-ref').value.trim(),
+    bio:       document.getElementById('f-bio').value.trim(),
+    edu:       document.getElementById('f-edu').value.trim(),
+    job:       document.getElementById('f-job').value.trim(),
+    family:    document.getElementById('f-family').value.trim(),
+    faith:     document.getElementById('f-faith').value.trim(),
+    photo:     photoBase64,
+    schedule:  JSON.stringify(scheds),
+  };
+
+  const btn = document.getElementById('save-btn');
+  document.getElementById('save-text').innerHTML = '<div class="spinner"></div>';
+  btn.classList.add('loading');
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: { 'Content-Type': 'application/json' }
+    });
+    const result = await res.json();
+    if (result.status === 'ok') {
+      showToast('저장되었습니다! 추모 페이지를 확인해 보세요');
+      setTimeout(() => window.open('index.html', '_blank'), 1500);
+    } else {
+      showToast('오류: ' + (result.message || '다시 시도해 주세요'));
+    }
+  } catch (e) {
+    showToast('저장 중 오류가 발생했습니다');
+  } finally {
+    document.getElementById('save-text').textContent = '추모 페이지 저장하기';
+    btn.classList.remove('loading');
+  }
+}
+
+// ── 토스트 ────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 2800);
+}
+</script>
+</body>
+</html>
