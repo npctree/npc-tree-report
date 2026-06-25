@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NPC 나무일지</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
+    background: #f0f2f5; min-height: 100vh;
+  }
+  .container { max-width: 480px; margin: 0 auto; padding: 0 0 2rem; }
+
+  .header {
+    background: #1C3959; color: white;
+    padding: 1.25rem 1.5rem 1rem;
+    text-align: center;
+  }
+  .header img { height: 40px; margin-bottom: 0.5rem; }
+  .header h1 { font-size: 18px; font-weight: 600; margin-bottom: 2px; }
+  .header p { font-size: 11px; opacity: 0.75; line-height: 1.5; }
+
+  .card {
+    background: white; margin: 1rem 1rem 0;
+    border-radius: 12px; padding: 1.25rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+  .card h2 { font-size: 14px; font-weight: 600; color: #1C3959; margin-bottom: 1rem; }
+
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 12px; color: #666; margin-bottom: 5px; font-weight: 500; }
+  .field select, .field input, .field textarea {
+    display: block; width: 100%;
+    border: 1px solid #ddd; border-radius: 8px;
+    padding: 10px 12px; font-size: 14px;
+    font-family: inherit; color: #333;
+    background: #fafafa;
+    -webkit-appearance: none;
+  }
+  .field select:focus, .field input:focus, .field textarea:focus {
+    outline: none; border-color: #3E8BCB; background: white;
+  }
+  .field textarea { height: 80px; resize: none; }
+
+  .radio-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .radio-group label {
+    display: flex; align-items: center; gap: 5px;
+    padding: 7px 12px; border: 1px solid #ddd; border-radius: 20px;
+    font-size: 13px; cursor: pointer; color: #333;
+    background: #fafafa;
+  }
+  .radio-group input[type="radio"] { display: none; }
+  .radio-group input[type="radio"]:checked + span {
+    color: #3E8BCB; font-weight: 600;
+  }
+  .radio-group label:has(input:checked) {
+    border-color: #3E8BCB; background: #EBF4FB; color: #3E8BCB;
+  }
+
+  .submit-btn {
+    display: block; width: calc(100% - 2rem);
+    margin: 1rem auto 0;
+    padding: 14px; background: #1C3959; color: white;
+    border: none; border-radius: 10px;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .submit-btn:active { opacity: 0.85; }
+  .submit-btn.loading { opacity: 0.6; pointer-events: none; }
+
+  .toast {
+    position: fixed; bottom: 1.5rem; left: 50%; transform: translateX(-50%);
+    background: #1C3959; color: white;
+    padding: 10px 20px; border-radius: 20px;
+    font-size: 13px; white-space: nowrap;
+    opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 100;
+  }
+  .toast.show { opacity: 1; }
+
+  .spinner {
+    width: 18px; height: 18px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white; border-radius: 50%;
+    animation: spin 0.7s linear infinite; display: inline-block; vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <img src="logo.png" alt="NPC 로고" onerror="this.style.display='none'">
+    <h1>🌳 나무일지</h1>
+    <p>성경적 리더를 세워 파송하는 교회<br>의의 나무를 심어 의의 푸른 세상을 보게 하라</p>
+  </div>
+
+  <div class="card">
+    <h2>나무모임 보고서</h2>
+
+    <div class="field">
+      <label>나무 선택</label>
+      <select id="tree">
+        <option value="">-- 나무를 선택하세요 --</option>
+        <optgroup label="믿음의 숲 (오예원)">
+          <option>1. 샬롬나무 (강선우)</option>
+          <option>2. 생명나무 (강선우)</option>
+          <option>3. 포도나무 (정의철)</option>
+          <option>4. 감람나무 (이호영)</option>
+          <option>5. 종려나무 (이재원)</option>
+          <option>6. 백향목나무 (오예원)</option>
+        </optgroup>
+        <optgroup label="소망의 숲 (김교현)">
+          <option>7. 무화과나무 (오정희)</option>
+          <option>8. 빛나나무 (박수희)</option>
+          <option>9. 에덴나무 (양은선)</option>
+          <option>10. 시온나무 (김교현)</option>
+          <option>11. 기쁨나무 (이민경)</option>
+          <option>12. 소망나무 (강명진)</option>
+        </optgroup>
+        <optgroup label="사랑의 숲 (심은오)">
+          <option>13. 축복나무 (정미영)</option>
+          <option>14. 물댄나무 (신유경)</option>
+          <option>15. 사랑나무 (홍은정)</option>
+          <option>16. 종려나무 (김지윤)</option>
+          <option>17. 평화나무 (심은오)</option>
+          <option>18. 주의나무 (이정아)</option>
+        </optgroup>
+        <optgroup label="진리의 숲 (함지애)">
+          <option>19. 은혜나무 (박현주)</option>
+          <option>20. 진리나무 (함지애)</option>
+          <option>21. 믿음나무 (최수연)</option>
+          <option>22. 새벽나무 (조은혜)</option>
+          <option>23. 생수나무 (강해인)</option>
+          <option>24. 기도나무 (이지은)</option>
+        </optgroup>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>모임 날짜</label>
+      <input type="date" id="date">
+    </div>
+
+    <div class="field">
+      <label>참석 인원</label>
+      <input type="number" id="attendance" placeholder="명" min="0">
+    </div>
+
+    <div class="field">
+      <label>모임 분위기</label>
+      <div class="radio-group">
+        <label><input type="radio" name="mood" value="매우 좋음"><span>😊 매우 좋음</span></label>
+        <label><input type="radio" name="mood" value="좋음"><span>🙂 좋음</span></label>
+        <label><input type="radio" name="mood" value="보통"><span>😐 보통</span></label>
+        <label><input type="radio" name="mood" value="아쉬움"><span>😔 아쉬움</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>결석자</label>
+      <input type="text" id="absent" placeholder="이름 입력 (없으면 빈칸)">
+    </div>
+
+    <div class="field">
+      <label>기도 제목</label>
+      <textarea id="prayer" placeholder="나눈 기도 제목을 적어주세요"></textarea>
+    </div>
+
+    <div class="field">
+      <label>심방이 필요한 분</label>
+      <input type="text" id="visit" placeholder="이름 (없으면 빈칸)">
+    </div>
+
+    <div class="field">
+      <label>전도 대상자</label>
+      <input type="text" id="outreach" placeholder="이름 (없으면 빈칸)">
+    </div>
+
+    <div class="field">
+      <label>목사님께 한 말씀</label>
+      <textarea id="message" placeholder="목사님께 전하고 싶은 말씀을 적어주세요"></textarea>
+    </div>
+  </div>
+
+  <button class="submit-btn" id="submit-btn" onclick="submitReport()">
+    <span id="btn-text">나무일지 제출하기</span>
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw9Dufd3jRrO0gZgQewXWq80FQfKZpzOS-DW1sSIievv3lgWqKE7P2AoddSKKNXdONI/exec';
+
+// 오늘 날짜 기본값
+document.getElementById('date').value = new Date().toISOString().split('T')[0];
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function submitReport() {
+  const tree = document.getElementById('tree').value;
+  const date = document.getElementById('date').value;
+  const attendance = document.getElementById('attendance').value;
+  const mood = document.querySelector('input[name="mood"]:checked')?.value || '';
+
+  if (!tree) { showToast('나무를 선택해 주세요'); return; }
+  if (!date) { showToast('날짜를 입력해 주세요'); return; }
+  if (!attendance) { showToast('참석 인원을 입력해 주세요'); return; }
+
+  const btn = document.getElementById('submit-btn');
+  const btnText = document.getElementById('btn-text');
+  btn.classList.add('loading');
+  btnText.innerHTML = '<div class="spinner"></div> 제출 중...';
+
+  const data = {
+    tree, date, attendance,
+    mood,
+    absent:   document.getElementById('absent').value,
+    prayer:   document.getElementById('prayer').value,
+    visit:    document.getElementById('visit').value,
+    outreach: document.getElementById('outreach').value,
+    message:  document.getElementById('message').value,
+  };
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify(data),
+      headers: { 'Content-Type': 'application/json' }
+    });
+    showToast('나무일지가 제출되었습니다! 🌳');
+    // 폼 초기화
+    document.getElementById('tree').value = '';
+    document.getElementById('attendance').value = '';
+    document.querySelectorAll('input[name="mood"]').forEach(r => r.checked = false);
+    document.getElementById('absent').value = '';
+    document.getElementById('prayer').value = '';
+    document.getElementById('visit').value = '';
+    document.getElementById('outreach').value = '';
+    document.getElementById('message').value = '';
+    document.getElementById('date').value = new Date().toISOString().split('T')[0];
+  } catch(e) {
+    showToast('제출 중 오류가 발생했습니다. 다시 시도해 주세요.');
+  } finally {
+    btn.classList.remove('loading');
+    btnText.textContent = '나무일지 제출하기';
+  }
+}
+</script>
+</body>
+</html>
